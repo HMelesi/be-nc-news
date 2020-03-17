@@ -8,8 +8,14 @@ app.use(express.json());
 app.use("/api", apiRouter);
 
 app.use((err, req, res, next) => {
-  //   console.log(err);
-  res.status(404).send({ message: "Page does not exist" });
+  const { code } = err;
+  const psqlCodes = ["22P02"];
+  if (psqlCodes.includes(code)) {
+    res.status(400).send({ message: "Bad request" });
+  } else {
+    const { status, message } = err;
+    res.status(status).send({ message });
+  }
 });
 
 module.exports = app;

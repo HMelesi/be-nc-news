@@ -1,5 +1,19 @@
 const client = require("../db/connection");
 
 exports.selectUsers = username => {
-  console.log("in the model!!");
+  return client
+    .select("*")
+    .from("users")
+    .where({ username })
+    .then(userArr => {
+      if (userArr.length === 0) {
+        return Promise.reject({
+          status: 404,
+          message: "Username does not exist"
+        });
+      } else {
+        user = userArr[0];
+        return { user };
+      }
+    });
 };
