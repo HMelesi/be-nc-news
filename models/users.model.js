@@ -5,14 +5,13 @@ exports.selectUsers = username => {
     .select("*")
     .from("users")
     .where({ username })
-    .then(userArr => {
-      if (userArr.length === 0) {
+    .then(([user]) => {
+      if (user === undefined) {
         return Promise.reject({
           status: 404,
           message: "Username does not exist"
         });
       } else {
-        user = userArr[0];
         return { user };
       }
     });

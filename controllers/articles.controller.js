@@ -1,7 +1,9 @@
 const {
   selectArticle,
   updateArticle,
-  insertComment
+  insertComment,
+  selectComments,
+  selectAllArticles
 } = require("../models/articles.model");
 
 exports.fetchArticle = (req, res, next) => {
@@ -16,10 +18,7 @@ exports.fetchArticle = (req, res, next) => {
 exports.changeArticle = (req, res, next) => {
   const { article_id } = req.params;
   const { inc_votes } = req.body;
-  selectArticle(article_id)
-    .then(article => {
-      return updateArticle(article, inc_votes);
-    })
+  updateArticle(article_id, inc_votes)
     .then(response => {
       res.status(201).send(response);
     })
@@ -27,7 +26,30 @@ exports.changeArticle = (req, res, next) => {
 };
 
 exports.addComment = (req, res, next) => {
-  insertComment().then(comment => {
-    res.status(201).send(comment);
-  });
+  const { username, body } = req.body;
+  const { article_id } = req.params;
+  insertComment(article_id, username, body)
+    .then(comment => {
+      res.status(201).send(comment);
+    })
+    .catch(next);
+};
+
+exports.fetchComments = (req, res, next) => {
+  const { article_id } = req.params;
+  const { sort_by, order } = req.query;
+  selectComments(article_id, sort_by, order)
+    .then(result => {
+      res.status(200).send(result);
+    })
+    .catch(next);
+};
+
+exports.fetchAllArticles = (req, res, next) => {
+  const { sort_by, order, username, topic } = req.query;
+  selectAllArticles(sort_by, order, username, topic)
+    .then(result => {
+      res.status(200).send(result);
+    })
+    .catch(next);
 };
