@@ -25,6 +25,17 @@ describe("/api", () => {
           expect(response.body.topics.length).to.equal(3);
         });
     });
+    it("ERROR: request to topics with invalid method returns 405 and error message", () => {
+      return request(app)
+        .post("/api/topics")
+        .send({ test: "test-a" })
+        .expect(405)
+        .then(response => {
+          expect(response.body.message).to.equal(
+            "Invalid method on topics endpoint"
+          );
+        });
+    });
   });
   describe("/api/users/:username", () => {
     it("GET request returns a user object from username", () => {
@@ -62,6 +73,17 @@ describe("/api", () => {
         .then(response => {
           expect(response.body).to.be.an("object");
           expect(response.body.message).to.eql("Username does not exist");
+        });
+    });
+    it("ERROR: request to users/:username with invalid method returns 405 and error message", () => {
+      return request(app)
+        .post("/api/users/butter_bridge")
+        .send({ test: "test-a" })
+        .expect(405)
+        .then(response => {
+          expect(response.body.message).to.equal(
+            "Invalid method on users endpoint"
+          );
         });
     });
   });
@@ -192,6 +214,17 @@ describe("/api", () => {
           expect(response.body.article.author).to.equal("butter_bridge");
         });
     });
+    it("ERROR: request to articles/:article_id with invalid method returns 405 and error message", () => {
+      return request(app)
+        .post("/api/articles/1")
+        .send({ test: "test-a" })
+        .expect(405)
+        .then(response => {
+          expect(response.body.message).to.equal(
+            "Invalid method on articles endpoint"
+          );
+        });
+    });
   });
   describe("/api/articles/:article_id/comments", () => {
     it("POST request responds with status 204 and comment object", () => {
@@ -291,6 +324,17 @@ describe("/api", () => {
           expect(response.body).to.be.an("object");
           expect(response.body.comments).to.be.an("array");
           expect(response.body.comments[0].comment_id).to.eql(2);
+        });
+    });
+    it("ERROR: request to articles/:article_id/comments with invalid method returns 405 and error message", () => {
+      return request(app)
+        .patch("/api/articles/1/comments")
+        .send({ test: "test-a" })
+        .expect(405)
+        .then(response => {
+          expect(response.body.message).to.equal(
+            "Invalid method on articles endpoint"
+          );
         });
     });
   });
@@ -398,8 +442,19 @@ describe("/api", () => {
           expect(response.body.message).to.equal("No such articles exist");
         });
     });
+    it("ERROR: request to articles with invalid method returns 405 and error message", () => {
+      return request(app)
+        .post("/api/articles")
+        .send({ test: "test-a" })
+        .expect(405)
+        .then(response => {
+          expect(response.body.message).to.equal(
+            "Invalid method on articles endpoint"
+          );
+        });
+    });
   });
-  describe.only("/api/comments", () => {
+  describe("/api/comments", () => {
     it("PATCH request updates votes on comment and returns the updated comment", () => {
       return request(app)
         .patch("/api/comments/1")
@@ -443,6 +498,40 @@ describe("/api", () => {
         .then(response => {
           expect(response.body).to.be.an("object");
           expect(response.body.message).to.equal("Invalid id or data input");
+        });
+    });
+    it("DELETE request with comment id deletes the comment and responds with 204", () => {
+      return request(app)
+        .del("/api/comments/1")
+        .expect(204)
+        .then(response => {
+          expect(response.body).to.eql({});
+        });
+    });
+    it("ERROR: DELETE request with invalid comment id returns 400 and error message", () => {
+      return request(app)
+        .del("/api/comments/not_a_number")
+        .expect(400)
+        .then(response => {
+          expect(response.body.message).to.eql("Invalid id or data input");
+        });
+    });
+    it("ERROR: DELETE request with valid but non-existent comment id returns 404 and error message", () => {
+      return request(app)
+        .del("/api/comments/0")
+        .expect(404)
+        .then(response => {
+          expect(response.body.message).to.eql("Comment does not exist");
+        });
+    });
+    it("ERROR: request to comments with invalid method returns 405 and error message", () => {
+      return request(app)
+        .get("/api/comments/1")
+        .expect(405)
+        .then(response => {
+          expect(response.body.message).to.equal(
+            "Invalid method on comments endpoint"
+          );
         });
     });
   });

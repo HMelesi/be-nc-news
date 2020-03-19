@@ -4,19 +4,25 @@ const {
   changeArticle,
   addComment,
   fetchComments,
-  fetchAllArticles
+  fetchAllArticles,
+  methodError
 } = require("../controllers/articles.controller");
 
 articlesRouter
   .route("/:article_id/comments")
   .post(addComment)
-  .get(fetchComments);
+  .get(fetchComments)
+  .all(methodError);
 
 articlesRouter
   .route("/:article_id")
   .get(fetchArticle)
-  .patch(changeArticle);
+  .patch(changeArticle)
+  .all(methodError);
 
-articlesRouter.route("/").get(fetchAllArticles);
+articlesRouter
+  .route("/")
+  .get(fetchAllArticles)
+  .all(methodError);
 
 module.exports = articlesRouter;
