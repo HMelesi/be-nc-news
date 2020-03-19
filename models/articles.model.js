@@ -39,15 +39,24 @@ exports.updateArticle = (article_id, inc_votes) => {
 };
 
 exports.insertComment = (article_id, author, body) => {
-  return client("comments")
-    .insert({ article_id, author, body })
-    .returning("*")
-    .then(([comment]) => {
-      return { comment };
-    });
+  return checkExists("articles", "article_id", article_id).then(
+    articleExists => {
+      if (articleExists) {
+        return client("comments")
+          .insert({ article_id, author, body })
+          .returning("*")
+          .then(([comment]) => {
+            return { comment };
+          });
+      } else {
+        return Promise.reject({
+          status: 404,
+          message: "Article does not exist"
+        });
+      }
+    }
+  );
 };
-
-//need to create a model that checks if articles exist by article id, topic or author
 
 exports.selectComments = (article_id, sort_by, order) => {
   return client
@@ -63,16 +72,26 @@ exports.selectComments = (article_id, sort_by, order) => {
     })
     .then(commentsArr => {
       if (commentsArr.length === 0) {
-        return Promise.reject({
-          status: 404,
-          message: "Article does not exist"
-        });
+        return Promise.all([
+          checkExists("articles", "article_id", article_id),
+          commentsArr
+        ]);
       } else {
+        return [true, commentsArr];
+      }
+    })
+    .then(([articleExists, commentsArr]) => {
+      if (articleExists) {
         const comments = commentsArr.map(comment => {
           delete comment.article_id;
           return comment;
         });
         return { comments };
+      } else {
+        return Promise.reject({
+          status: 404,
+          message: "Article does not exist"
+        });
       }
     });
 };
@@ -105,20 +124,41 @@ exports.selectAllArticles = (sort_by, order, author, topic) => {
           return query.where("articles.topic", topic);
         }
       })
-      .then(articlesWithBody => {
-        if (articlesWithBody.length === 0) {
-          return Promise.reject({
-            status: 400,
-            message: "No such articles exist"
-          });
+      .then(articlesArr => {
+        if (articlesArr.length === 0 && author) {
+          return Promise.all([
+            checkExists("users", "username", author),
+            articlesArr
+          ]);
+        } else if (articlesArr.length === 0 && topic) {
+          return Promise.all([
+            checkExists("topics", "slug", topic),
+            articlesArr
+          ]);
         } else {
+          return [true, articlesArr];
+        }
+      })
+      .then(([queryExists, articlesWithBody]) => {
+        if (queryExists) {
           const articles = articlesWithBody.map(article => {
             delete article.body;
             return article;
           });
-
           return { articles };
+        } else {
+          return Promise.reject({
+            status: 404,
+            message: "Topic or author does not exist"
+          });
         }
       });
   }
+};
+
+const checkExists = (table, column, query) => {
+  return client(table)
+    .select()
+    .where({ [column]: query })
+    .first();
 };
