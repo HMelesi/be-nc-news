@@ -20,7 +20,7 @@ exports.changeArticle = (req, res, next) => {
   const { inc_votes } = req.body;
   updateArticle(article_id, inc_votes)
     .then(response => {
-      res.status(201).send(response);
+      res.status(200).send(response);
     })
     .catch(next);
 };
@@ -46,8 +46,8 @@ exports.fetchComments = (req, res, next) => {
 };
 
 exports.fetchAllArticles = (req, res, next) => {
-  const { sort_by, order, username, topic } = req.query;
-  selectAllArticles(sort_by, order, username, topic)
+  const { sort_by, order, author, topic } = req.query;
+  selectAllArticles(sort_by, order, author, topic)
     .then(result => {
       res.status(200).send(result);
     })

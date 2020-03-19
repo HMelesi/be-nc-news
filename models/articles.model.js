@@ -47,6 +47,8 @@ exports.insertComment = (article_id, author, body) => {
     });
 };
 
+//need to create a model that checks if articles exist by article id, topic or author
+
 exports.selectComments = (article_id, sort_by, order) => {
   return client
     .select("*")

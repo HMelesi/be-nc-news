@@ -12,7 +12,18 @@ describe("/api", () => {
   after(() => {
     return client.destroy();
   });
-
+  describe("/api", () => {
+    it("ERROR: request to articles/:article_id with invalid method returns 405 and error message", () => {
+      return request(app)
+        .delete("/api")
+        .expect(405)
+        .then(response => {
+          expect(response.body.message).to.equal(
+            "Invalid method on api endpoint"
+          );
+        });
+    });
+  });
   describe("/api/topics", () => {
     it("GET request returns an array of topic objects with the correct properties", () => {
       return request(app)
@@ -148,7 +159,7 @@ describe("/api", () => {
       return request(app)
         .patch("/api/articles/1")
         .send({ inc_votes: -40 })
-        .expect(201)
+        .expect(200)
         .then(response => {
           expect(response.body).to.be.an("object");
           expect(response.body.article).to.have.keys([
@@ -260,11 +271,11 @@ describe("/api", () => {
           );
         });
     });
-    it("ERROR: POST request to valid but non existent article_id responds with status 400 and error message", () => {
+    it.only("ERROR: POST request to valid but non existent article_id responds with status 400 and error message", () => {
       return request(app)
         .post("/api/articles/0/comments")
         .send({ username: "butter_bridge", body: "test-body" })
-        .expect(400)
+        .expect(404)
         .then(response => {
           expect(response.body).to.be.an("object");
           expect(response.body.message).to.equal("Article does not exist");
@@ -296,6 +307,15 @@ describe("/api", () => {
             "body"
           ]);
           expect(response.body.comments[0].comment_id).to.eql(2);
+        });
+    });
+    it.only("ERROR: GET request to article_id with no comments returns 200 and empty array", () => {
+      return request(app)
+        .get("/api/articles/2/comments")
+        .expect(200)
+        .then(response => {
+          expect(response.body).to.be.an("object");
+          expect(response.body.comments).to.eql([]);
         });
     });
     it("ERROR: GET request with valid but non-existent article_id responds with 404 and error message", () => {
@@ -410,7 +430,7 @@ describe("/api", () => {
     });
     it("GET request accepts username parameter, which filters the articles by the username value specified in the query", () => {
       return request(app)
-        .get("/api/articles?username=butter_bridge")
+        .get("/api/articles?author=butter_bridge")
         .expect(200)
         .then(response => {
           expect(response.body.articles.length).to.equal(3);
@@ -426,20 +446,38 @@ describe("/api", () => {
           expect(response.body.articles[0].topic).to.equal("cats");
         });
     });
-    it("ERROR: GET request when passed username or topic parameter not in the database, returns 400 and error message", () => {
+    it.only("ERROR: GET request when passed topic parameter not in the database, returns 400 and error message", () => {
       return request(app)
-        .get("/api/articles?username=not_a_username")
-        .expect(400)
+        .get("/api/articles?topic=not_a_topic")
+        .expect(404)
         .then(response => {
-          expect(response.body.message).to.equal("No such articles exist");
+          expect(response.body.message).to.equal("Topic does not exist");
         });
     });
-    it("ERROR: GET request when passed topic or usename parameter in the database with no articles, returns 400 and error message", () => {
+    it.only("ERROR: GET request when passed username or topic parameter not in the database, returns 400 and error message", () => {
+      return request(app)
+        .get("/api/articles?author=not_a_username")
+        .expect(404)
+        .then(response => {
+          expect(response.body.message).to.equal("Author does not exist");
+        });
+    });
+    it.only("ERROR: GET request when passed topic parameter in the database with no articles, returns 200 and empty array", () => {
       return request(app)
         .get("/api/articles?topic=paper")
-        .expect(400)
+        .expect(200)
         .then(response => {
-          expect(response.body.message).to.equal("No such articles exist");
+          expect(response.body).to.be.an("object");
+          expect(response.body.articles).to.equal([]);
+        });
+    });
+    it.only("ERROR: GET request when passed author parameter in the database with no articles, returns 400 and error message", () => {
+      return request(app)
+        .get("/api/articles?author=lurker")
+        .expect(200)
+        .then(response => {
+          expect(response.body).to.be.an("object");
+          expect(response.body.articles).to.equal([]);
         });
     });
     it("ERROR: request to articles with invalid method returns 405 and error message", () => {
@@ -459,6 +497,7 @@ describe("/api", () => {
       return request(app)
         .patch("/api/comments/1")
         .send({ inc_votes: 30 })
+        .expect(200)
         .then(response => {
           expect(response.body).to.be.an("object");
           expect(response.body.comment).to.be.an("object");
