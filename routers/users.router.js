@@ -1,5 +1,6 @@
 const usersRouter = require("express").Router();
-const { fetchUsers, methodError } = require("../controllers/users.controller");
+const { methodError } = require("../handling");
+const { fetchUsers } = require("../controllers/users.controller");
 
 usersRouter
   .route("/:username")

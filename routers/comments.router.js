@@ -1,8 +1,8 @@
 const commentsRouter = require("express").Router();
+const { methodError } = require("../handling");
 const {
   changeComment,
-  removeComment,
-  methodError
+  removeComment
 } = require("../controllers/comments.controller");
 
 commentsRouter

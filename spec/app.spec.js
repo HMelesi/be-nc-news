@@ -13,14 +13,22 @@ describe("/api", () => {
     return client.destroy();
   });
   describe("/api", () => {
-    it("ERROR: request to articles/:article_id with invalid method returns 405 and error message", () => {
+    it("GET request responds with JSON describing all the available endpoints on API", () => {
+      return request(app)
+        .get("/api")
+        .expect(200)
+        .then(response => {
+          expect(response.body).to.be.an("object");
+          expect(response.body.endpoints).to.be.an("array");
+          expect(response.body.endpoints[0]).to.have.keys(["path", "methods"]);
+        });
+    });
+    it("ERROR: request to /api with invalid method returns 405 and error message", () => {
       return request(app)
         .delete("/api")
         .expect(405)
         .then(response => {
-          expect(response.body.message).to.equal(
-            "Invalid method on api endpoint"
-          );
+          expect(response.body.message).to.equal("Invalid method on endpoint");
         });
     });
   });
@@ -42,9 +50,7 @@ describe("/api", () => {
         .send({ test: "test-a" })
         .expect(405)
         .then(response => {
-          expect(response.body.message).to.equal(
-            "Invalid method on topics endpoint"
-          );
+          expect(response.body.message).to.equal("Invalid method on endpoint");
         });
     });
   });
@@ -92,9 +98,7 @@ describe("/api", () => {
         .send({ test: "test-a" })
         .expect(405)
         .then(response => {
-          expect(response.body.message).to.equal(
-            "Invalid method on users endpoint"
-          );
+          expect(response.body.message).to.equal("Invalid method on endpoint");
         });
     });
   });
@@ -231,9 +235,7 @@ describe("/api", () => {
         .send({ test: "test-a" })
         .expect(405)
         .then(response => {
-          expect(response.body.message).to.equal(
-            "Invalid method on articles endpoint"
-          );
+          expect(response.body.message).to.equal("Invalid method on endpoint");
         });
     });
   });
@@ -352,9 +354,7 @@ describe("/api", () => {
         .send({ test: "test-a" })
         .expect(405)
         .then(response => {
-          expect(response.body.message).to.equal(
-            "Invalid method on articles endpoint"
-          );
+          expect(response.body.message).to.equal("Invalid method on endpoint");
         });
     });
   });
@@ -490,9 +490,7 @@ describe("/api", () => {
         .send({ test: "test-a" })
         .expect(405)
         .then(response => {
-          expect(response.body.message).to.equal(
-            "Invalid method on articles endpoint"
-          );
+          expect(response.body.message).to.equal("Invalid method on endpoint");
         });
     });
   });
@@ -525,7 +523,7 @@ describe("/api", () => {
           expect(response.body.message).to.equal("Comment does not exist");
         });
     });
-    it("ERROR: PATCH request to valid but non-existent comment, returns 404 and error message", () => {
+    it("ERROR: PATCH request to invalid comment, returns 404 and error message", () => {
       return request(app)
         .patch("/api/comments/nan")
         .send({ inc_votes: 30 })
@@ -572,9 +570,7 @@ describe("/api", () => {
         .get("/api/comments/1")
         .expect(405)
         .then(response => {
-          expect(response.body.message).to.equal(
-            "Invalid method on comments endpoint"
-          );
+          expect(response.body.message).to.equal("Invalid method on endpoint");
         });
     });
   });

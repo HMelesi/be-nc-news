@@ -1,11 +1,11 @@
 const articlesRouter = require("express").Router();
+const { methodError } = require("../handling");
 const {
   fetchArticle,
   changeArticle,
   addComment,
   fetchComments,
-  fetchAllArticles,
-  methodError
+  fetchAllArticles
 } = require("../controllers/articles.controller");
 
 articlesRouter

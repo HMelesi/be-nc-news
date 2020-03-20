@@ -18,7 +18,3 @@ exports.removeComment = (req, res, next) => {
     })
     .catch(next);
 };
-
-exports.methodError = (req, res, next) => {
-  res.status(405).send({ message: "Invalid method on comments endpoint" });
-};

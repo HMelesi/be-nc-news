@@ -107,20 +107,14 @@ exports.selectAllArticles = (sort_by, order, author, topic) => {
       .count({ comment_count: "comments.article_id" })
       .leftJoin("comments", "articles.article_id", "comments.article_id")
       .groupBy("articles.article_id")
+      .orderBy(sort_by || "created_at", order || "desc")
       .modify(query => {
-        if (sort_by !== undefined) {
-          return query.orderBy(sort_by, order || "desc");
-        } else {
-          return query.orderBy("created_at", order || "desc");
-        }
-      })
-      .modify(query => {
-        if (author !== undefined) {
+        if (author) {
           return query.where("articles.author", author);
         }
       })
       .modify(query => {
-        if (topic !== undefined) {
+        if (topic) {
           return query.where("articles.topic", topic);
         }
       })
