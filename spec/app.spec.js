@@ -366,7 +366,7 @@ describe("/api", () => {
         .then(response => {
           expect(response.body).to.be.an("object");
           expect(response.body.articles).to.be.an("array");
-          expect(response.body.articles.length).to.equal(12);
+          expect(response.body.articles.length).to.equal(10);
           expect(response.body.articles[0]).to.have.keys([
             "author",
             "title",
@@ -376,6 +376,23 @@ describe("/api", () => {
             "votes",
             "comment_count"
           ]);
+        });
+    });
+    it("GET request accepts limit query which limits the results shown, default to 10", () => {
+      return request(app)
+        .get("/api/articles?limit=5")
+        .expect(200)
+        .then(response => {
+          expect(response.body.articles.length).to.equal(5);
+        });
+    });
+    it("GET request accepts page query which specifies the page at which to start (calculated using limit), default to 1", () => {
+      return request(app)
+        .get("/api/articles?limit=5&p=2")
+        .expect(200)
+        .then(response => {
+          expect(response.body.articles.length).to.equal(5);
+          expect(response.body.articles[0].article_id).to.equal(6);
         });
     });
     it("GET request accepts sort_by query which uses column name to sort array and order which defaults to descending", () => {

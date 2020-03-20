@@ -46,8 +46,8 @@ exports.fetchComments = (req, res, next) => {
 };
 
 exports.fetchAllArticles = (req, res, next) => {
-  const { sort_by, order, author, topic } = req.query;
-  selectAllArticles(sort_by, order, author, topic)
+  const { sort_by, order, author, topic, limit, p } = req.query;
+  selectAllArticles(sort_by, order, author, topic, limit, p)
     .then(result => {
       res.status(200).send(result);
     })

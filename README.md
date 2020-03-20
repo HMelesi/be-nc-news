@@ -6,7 +6,31 @@ Northcoders News API was created as an assessment project during the backend par
 
 The hosted version of this project can be found [here](https://hm-nc-news-app.herokuapp.com/api/)
 
+The server has the following endpoints and methods:
+
+**GET** /api
+
+**GET** /api/topics
+
+**GET** /api/users/:username
+
+**GET** /api/articles
+
+**GET** /api/articles/:article_id
+**PATCH** /api/articles/:article_id
+
+**POST** /api/articles/:article_id/comments
+**GET** /api/articles/:article_id/comments
+
+**PATCH** /api/comments/:comment_id
+**DELETE** /api/comments/:comment_id
+
 ## Getting Started
+
+To run this project you will need to install:
+
+_[Node.js](https://nodejs.org/en/download/) - version 13.8.0 or higher
+_[PostgreSQL](https://www.postgresql.org/download/) - version 7.18.2 or higher
 
 To create your own copy of the project, please fork this repository and using your terminal, clone using the command:
 

@@ -96,7 +96,7 @@ exports.selectComments = (article_id, sort_by, order) => {
     });
 };
 
-exports.selectAllArticles = (sort_by, order, author, topic) => {
+exports.selectAllArticles = (sort_by, order, author, topic, limit, p) => {
   const orders = ["asc", "desc", undefined];
   if (!orders.includes(order)) {
     return Promise.reject({ status: 400, message: "Invalid order request" });
@@ -108,14 +108,14 @@ exports.selectAllArticles = (sort_by, order, author, topic) => {
       .leftJoin("comments", "articles.article_id", "comments.article_id")
       .groupBy("articles.article_id")
       .orderBy(sort_by || "created_at", order || "desc")
+      .limit(limit || 10)
+      .offset((p - 1) * limit || 0)
       .modify(query => {
         if (author) {
-          return query.where("articles.author", author);
+          query.where("articles.author", author);
         }
-      })
-      .modify(query => {
         if (topic) {
-          return query.where("articles.topic", topic);
+          query.where("articles.topic", topic);
         }
       })
       .then(articlesArr => {
