@@ -238,6 +238,30 @@ describe("/api", () => {
           expect(response.body.message).to.equal("Invalid method on endpoint");
         });
     });
+    it("DELETE request on article_id deletes the required article and all the articles comments", () => {
+      return request(app)
+        .delete("/api/articles/1")
+        .expect(204)
+        .then(response => {
+          expect(response.body).to.eql({});
+        });
+    });
+    it("ERROR: DELETE request on valid but non-existent article_id returns 404 and error message", () => {
+      return request(app)
+        .delete("/api/articles/0")
+        .expect(404)
+        .then(response => {
+          expect(response.body.message).to.eql("Article does not exist");
+        });
+    });
+    it("ERROR: DELETE request on invalid article_id returns 400 and error message", () => {
+      return request(app)
+        .delete("/api/articles/not_a_number")
+        .expect(400)
+        .then(response => {
+          expect(response.body.message).to.eql("Invalid id or data input");
+        });
+    });
   });
   describe("/api/articles/:article_id/comments", () => {
     it("POST request responds with status 204 and comment object", () => {
@@ -300,7 +324,7 @@ describe("/api", () => {
         .then(response => {
           expect(response.body).to.be.an("object");
           expect(response.body.comments).to.be.an("array");
-          expect(response.body.comments.length).to.equal(13);
+          expect(response.body.comments.length).to.equal(10);
           expect(response.body.comments[0]).to.have.keys([
             "comment_id",
             "votes",
@@ -309,6 +333,24 @@ describe("/api", () => {
             "body"
           ]);
           expect(response.body.comments[0].comment_id).to.eql(2);
+        });
+    });
+    it("GET request accepts limit and p queries, and responds with 200 and an array of comments for the given article_id", () => {
+      return request(app)
+        .get("/api/articles/1/comments?limit=5&p=2")
+        .expect(200)
+        .then(response => {
+          expect(response.body).to.be.an("object");
+          expect(response.body.comments).to.be.an("array");
+          expect(response.body.comments.length).to.equal(5);
+          expect(response.body.comments[0]).to.have.keys([
+            "comment_id",
+            "votes",
+            "created_at",
+            "author",
+            "body"
+          ]);
+          expect(response.body.comments[0].comment_id).to.eql(7);
         });
     });
     it("ERROR: GET request to article_id with no comments returns 200 and empty array", () => {
@@ -503,11 +545,67 @@ describe("/api", () => {
     });
     it("ERROR: request to articles with invalid method returns 405 and error message", () => {
       return request(app)
-        .post("/api/articles")
+        .patch("/api/articles")
         .send({ test: "test-a" })
         .expect(405)
         .then(response => {
           expect(response.body.message).to.equal("Invalid method on endpoint");
+        });
+    });
+    it("POST request to articles returns 201 and created article object", () => {
+      return request(app)
+        .post("/api/articles")
+        .send({
+          title: "test-title",
+          body: "test-body",
+          topic: "paper",
+          author: "butter_bridge"
+        })
+        .expect(201)
+        .then(response => {
+          expect(response.body).to.be.an("object");
+          expect(response.body.article.article_id).to.equal(13);
+          expect(response.body.article.votes).to.equal(0);
+          expect(response.body.article).to.have.keys([
+            "title",
+            "body",
+            "topic",
+            "author",
+            "created_at",
+            "article_id",
+            "votes"
+          ]);
+        });
+    });
+    it("ERROR: POST request with body missing values to articles returns 400 and error message", () => {
+      return request(app)
+        .post("/api/articles")
+        .send({
+          title: "test-title",
+          body: "test-body",
+          author: "butter_bridge"
+        })
+        .expect(400)
+        .then(response => {
+          expect(response.body.message).to.equal(
+            "Required input data not found"
+          );
+        });
+    });
+    it("ERROR: POST request with body with non-existent author or topic to articles returns 400 and error message", () => {
+      return request(app)
+        .post("/api/articles")
+        .send({
+          title: "test-title",
+          body: "test-body",
+          author: "butter_bridge",
+          topic: "not_a_topic"
+        })
+        .expect(400)
+        .then(response => {
+          expect(response.body.message).to.equal(
+            "Article, author or topic does not exist"
+          );
         });
     });
   });

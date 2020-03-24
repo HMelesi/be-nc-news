@@ -3,7 +3,9 @@ const {
   updateArticle,
   insertComment,
   selectComments,
-  selectAllArticles
+  selectAllArticles,
+  insertArticle,
+  deleteArticle
 } = require("../models/articles.model");
 
 exports.fetchArticle = (req, res, next) => {
@@ -37,8 +39,8 @@ exports.addComment = (req, res, next) => {
 
 exports.fetchComments = (req, res, next) => {
   const { article_id } = req.params;
-  const { sort_by, order } = req.query;
-  selectComments(article_id, sort_by, order)
+  const { sort_by, order, limit, p } = req.query;
+  selectComments(article_id, sort_by, order, limit, p)
     .then(result => {
       res.status(200).send(result);
     })
@@ -50,6 +52,24 @@ exports.fetchAllArticles = (req, res, next) => {
   selectAllArticles(sort_by, order, author, topic, limit, p)
     .then(result => {
       res.status(200).send(result);
+    })
+    .catch(next);
+};
+
+exports.addArticle = (req, res, next) => {
+  const { body } = req;
+  insertArticle(body)
+    .then(result => {
+      res.status(201).send(result);
+    })
+    .catch(next);
+};
+
+exports.removeArticle = (req, res, next) => {
+  const { article_id } = req.params;
+  deleteArticle(article_id)
+    .then(result => {
+      res.status(204).send();
     })
     .catch(next);
 };

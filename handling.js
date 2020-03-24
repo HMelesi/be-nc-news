@@ -18,7 +18,9 @@ const sqlErrorHandler = (err, req, res, next) => {
   } else if (code === "23502") {
     res.status(400).send({ message: "Required input data not found" });
   } else if (code === "23503") {
-    res.status(400).send({ message: "Article does not exist" });
+    res
+      .status(400)
+      .send({ message: "Article, author or topic does not exist" });
   } else if (code === "42703") {
     res.status(400).send({ message: "Article property does not exist" });
   }

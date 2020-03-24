@@ -58,7 +58,7 @@ exports.insertComment = (article_id, author, body) => {
   );
 };
 
-exports.selectComments = (article_id, sort_by, order) => {
+exports.selectComments = (article_id, sort_by, order, limit, p) => {
   return client
     .select("*")
     .from("comments")
@@ -70,6 +70,8 @@ exports.selectComments = (article_id, sort_by, order) => {
         return query.orderBy("created_at", order || "desc");
       }
     })
+    .limit(limit || 10)
+    .offset((p - 1) * limit || 0)
     .then(commentsArr => {
       if (commentsArr.length === 0) {
         return Promise.all([
@@ -148,6 +150,33 @@ exports.selectAllArticles = (sort_by, order, author, topic, limit, p) => {
         }
       });
   }
+};
+
+exports.insertArticle = body => {
+  return client("articles")
+    .insert(body)
+    .returning("*")
+    .then(([article]) => {
+      return { article };
+    });
+};
+
+exports.deleteArticle = article_id => {
+  return checkExists("articles", "article_id", article_id).then(
+    articleExists => {
+      if (articleExists) {
+        return client
+          .del("*")
+          .from("articles")
+          .where({ article_id });
+      } else {
+        return Promise.reject({
+          status: 404,
+          message: "Article does not exist"
+        });
+      }
+    }
+  );
 };
 
 const checkExists = (table, column, query) => {
