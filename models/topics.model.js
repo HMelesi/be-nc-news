@@ -8,3 +8,12 @@ exports.selectTopics = () => {
       return { topics };
     });
 };
+
+exports.insertTopic = body => {
+  return client("topics")
+    .insert(body)
+    .returning("*")
+    .then(([topic]) => {
+      return { topic };
+    });
+};

@@ -44,9 +44,87 @@ describe("/api", () => {
           expect(response.body.topics.length).to.equal(3);
         });
     });
-    it("ERROR: request to topics with invalid method returns 405 and error message", () => {
+    it("POST request with topic object, adds topic to topics, returns 201 and created topic object", () => {
       return request(app)
         .post("/api/topics")
+        .send({ slug: "test-topic", description: "test-text" })
+        .expect(201)
+        .then(response => {
+          expect(response.body).to.be.an("object");
+          expect(response.body.topic).to.eql({
+            slug: "test-topic",
+            description: "test-text"
+          });
+        });
+    });
+    it("ERROR: POST request with invalid topic object sends 400 error and message", () => {
+      return request(app)
+        .post("/api/topics")
+        .send({ description: "test-text" })
+        .expect(400)
+        .then(response => {
+          expect(response.body).to.be.an("object");
+          expect(response.body.message).to.eql("Required input data not found");
+        });
+    });
+    it("ERROR: request to topics with invalid method returns 405 and error message", () => {
+      return request(app)
+        .delete("/api/topics")
+        .expect(405)
+        .then(response => {
+          expect(response.body.message).to.equal("Invalid method on endpoint");
+        });
+    });
+  });
+  describe("/api/users", () => {
+    it("POST request with user object body, returns 201 and created new user object", () => {
+      return request(app)
+        .post("/api/users")
+        .send({
+          username: "test-username",
+          avatar_url: "test-url",
+          name: "test-name"
+        })
+        .expect(201)
+        .then(response => {
+          expect(response.body).to.be.an("object");
+          expect(response.body.user).to.eql({
+            username: "test-username",
+            avatar_url: "test-url",
+            name: "test-name"
+          });
+        });
+    });
+    it("ERROR: POST request with invalid user object body, returns 400 and error message", () => {
+      return request(app)
+        .post("/api/users")
+        .send({
+          avatar_url: "test-url",
+          name: "test-name"
+        })
+        .expect(400)
+        .then(response => {
+          expect(response.body.message).to.eql("Required input data not found");
+        });
+    });
+    it("GET request responds with status 200 and object containing array of all users", () => {
+      return request(app)
+        .get("/api/users")
+        .expect(200)
+        .then(response => {
+          expect(response.body).to.be.an("object");
+          expect(response.body.users).to.be.an("array");
+          expect(response.body.users.length).to.equal(4);
+          expect(response.body.users[0]).to.have.keys([
+            "username",
+            "avatar_url",
+            "name"
+          ]);
+        });
+    });
+    it("ERROR: request to users with invalid method returns 405 and error message", () => {
+      return request(app)
+        .patch("/api/users")
         .send({ test: "test-a" })
         .expect(405)
         .then(response => {

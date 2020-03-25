@@ -1,6 +1,6 @@
 const client = require("../db/connection");
 
-exports.selectUsers = username => {
+exports.selectUser = username => {
   return client
     .select("*")
     .from("users")
@@ -14,5 +14,23 @@ exports.selectUsers = username => {
       } else {
         return { user };
       }
+    });
+};
+
+exports.insertUser = body => {
+  return client("users")
+    .insert(body)
+    .returning("*")
+    .then(([user]) => {
+      return { user };
+    });
+};
+
+exports.selectAllUsers = () => {
+  return client
+    .select("*")
+    .from("users")
+    .then(users => {
+      return { users };
     });
 };
