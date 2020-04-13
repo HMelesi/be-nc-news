@@ -10,9 +10,50 @@ The server has the following endpoints and methods:
 
 **GET** /api
 
+returns a list of endpoints for the api
+
+example:
+
+```
+{
+   "endpoints": [
+      {
+         "path": "/topics",
+         "methods": [
+            "GET",
+            "POST"
+         ]
+      },
+      {
+         "path": "/users/:username",
+         "methods": [
+            "GET"
+         ]
+      },
+      {
+         "path": "/users",
+         "methods": [
+            "POST",
+            "GET"
+         ]
+      },
+      {
+         "path": "/articles/:article_id/comments",
+         "methods": [
+            "POST",
+            "GET"
+         ]
+      },
+      ...
+   ]
+}
+```
+
 **GET** /api/topics
 
-returns object in the following format:
+returns a list of all topics
+
+example format:
 
 ```
 {
@@ -35,7 +76,9 @@ returns object in the following format:
 
 **GET** /api/users/
 
-returns object in the following format:
+returns a list of users
+
+example format:
 
 ```
 {
@@ -62,7 +105,9 @@ returns object in the following format:
 
 **GET** /api/users/:username
 
-returns object in the following format:
+returns an individual user
+
+example format:
 
 ```
 {
@@ -76,7 +121,9 @@ returns object in the following format:
 
 **GET** /api/articles
 
-returns object in the following format:
+returns a list of articles
+
+example format:
 
 ```
 {
@@ -113,9 +160,26 @@ returns object in the following format:
 }
 ```
 
+**POST** /api/articles
+
+adds an article to an existing topic, for example:
+
+```
+{
+    title: "test-title",
+    body: "test-body",
+    topic: "paper",
+    author: "butter_bridge"
+}
+```
+
+post request returns new article object.
+
 **GET** /api/articles/:article_id
 
-returns object in the following format:
+returns an individual article
+
+example format:
 
 ```
 {
@@ -134,11 +198,45 @@ returns object in the following format:
 
 **PATCH** /api/articles/:article_id
 
+increases or decreases an article's votes by the given amount, for example:
+
+increase votes by 1:
+
+```
+{ inc_votes: 1 }
+```
+
+decrease votes by 1:
+
+```
+{ inc_votes: -1 }
+
+```
+
+patch request returns the updated article object.
+
 **POST** /api/articles/:article_id/comments
+
+posts a comment to an article, for example:
+
+```
+{
+    username: "butter_bridge",
+    body: "test-body"
+}
+```
+
+post request returns comment object.
+
+```
+
+```
 
 **GET** /api/articles/:article_id/comments
 
-returns object in the following format:
+returns a list of comments for an article
+
+example format:
 
 ```
 {
@@ -170,7 +268,26 @@ returns object in the following format:
 ```
 
 **PATCH** /api/comments/:comment_id
+
+increases or decreases an comment's votes by the given amount, for example:
+
+increase votes by 1:
+
+```
+{ inc_votes: 1 }
+```
+
+decrease votes by 1:
+
+```
+{ inc_votes: -1 }
+```
+
+returns updated comment object.
+
 **DELETE** /api/comments/:comment_id
+
+deletes the a comment.
 
 ## Getting Started
 
