@@ -228,10 +228,6 @@ posts a comment to an article, for example:
 
 post request returns comment object.
 
-```
-
-```
-
 **GET** /api/articles/:article_id/comments
 
 returns a list of comments for an article
