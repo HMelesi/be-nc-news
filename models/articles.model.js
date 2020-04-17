@@ -103,45 +103,59 @@ exports.selectAllArticles = (sort_by, order, author, topic, limit, p) => {
   if (!orders.includes(order)) {
     return Promise.reject({ status: 400, message: "Invalid order request" });
   } else {
-    return client
-      .select("articles.*")
-      .from("articles")
-      .count({ comment_count: "comments.article_id" })
-      .leftJoin("comments", "articles.article_id", "comments.article_id")
-      .groupBy("articles.article_id")
-      .orderBy(sort_by || "created_at", order || "desc")
-      .limit(limit || 10)
-      .offset((p - 1) * limit || 0)
-      .modify(query => {
-        if (author) {
-          query.where("articles.author", author);
-        }
-        if (topic) {
-          query.where("articles.topic", topic);
-        }
-      })
-      .then(articlesArr => {
+    return Promise.all([
+      client("articles")
+        .count({ total_count: "*" })
+        .modify(query => {
+          if (author) {
+            query.where("articles.author", author);
+          }
+          if (topic) {
+            query.where("articles.topic", topic);
+          }
+        }),
+      client
+        .select("articles.*")
+        .from("articles")
+        .count({ comment_count: "comments.article_id" })
+        .leftJoin("comments", "articles.article_id", "comments.article_id")
+        .groupBy("articles.article_id")
+        .orderBy(sort_by || "created_at", order || "desc")
+        .limit(limit || 10)
+        .offset((p - 1) * limit || 0)
+        .modify(query => {
+          if (author) {
+            query.where("articles.author", author);
+          }
+          if (topic) {
+            query.where("articles.topic", topic);
+          }
+        })
+    ])
+      .then(([total_count, articlesArr]) => {
         if (articlesArr.length === 0 && author) {
           return Promise.all([
             checkExists("users", "username", author),
-            articlesArr
+            articlesArr,
+            total_count
           ]);
         } else if (articlesArr.length === 0 && topic) {
           return Promise.all([
             checkExists("topics", "slug", topic),
-            articlesArr
+            articlesArr,
+            total_count
           ]);
         } else {
-          return [true, articlesArr];
+          return [true, articlesArr, total_count];
         }
       })
-      .then(([queryExists, articlesWithBody]) => {
+      .then(([queryExists, articlesWithBody, total_count]) => {
         if (queryExists) {
           const articles = articlesWithBody.map(article => {
             delete article.body;
             return article;
           });
-          return { articles };
+          return { total_count, articles };
         } else {
           return Promise.reject({
             status: 404,

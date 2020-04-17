@@ -485,6 +485,7 @@ describe("/api", () => {
         .expect(200)
         .then(response => {
           expect(response.body).to.be.an("object");
+          expect(response.body).to.have.keys(["total_count", "articles"]);
           expect(response.body.articles).to.be.an("array");
           expect(response.body.articles.length).to.equal(10);
           expect(response.body.articles[0]).to.have.keys([
