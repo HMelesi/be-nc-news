@@ -127,6 +127,7 @@ example format:
 
 ```
 {
+    "total_count": "36",
    "articles": [
       {
          "article_id": 33,

@@ -132,25 +132,26 @@ exports.selectAllArticles = (sort_by, order, author, topic, limit, p) => {
           }
         })
     ])
-      .then(([total_count, articlesArr]) => {
+      .then(([count, articlesArr]) => {
         if (articlesArr.length === 0 && author) {
           return Promise.all([
             checkExists("users", "username", author),
             articlesArr,
-            total_count
+            count
           ]);
         } else if (articlesArr.length === 0 && topic) {
           return Promise.all([
             checkExists("topics", "slug", topic),
             articlesArr,
-            total_count
+            count
           ]);
         } else {
-          return [true, articlesArr, total_count];
+          return [true, articlesArr, count];
         }
       })
-      .then(([queryExists, articlesWithBody, total_count]) => {
+      .then(([queryExists, articlesWithBody, count]) => {
         if (queryExists) {
+          const total_count = count[0].total_count;
           const articles = articlesWithBody.map(article => {
             delete article.body;
             return article;
