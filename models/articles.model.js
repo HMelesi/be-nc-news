@@ -151,7 +151,7 @@ exports.selectAllArticles = (sort_by, order, author, topic, limit, p) => {
       })
       .then(([queryExists, articlesWithBody, count]) => {
         if (queryExists) {
-          const total_count = count[0].total_count;
+          const total_count = Number.parseInt(count[0].total_count);
           const articles = articlesWithBody.map(article => {
             delete article.body;
             return article;
